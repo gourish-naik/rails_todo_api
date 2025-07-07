@@ -1,0 +1,19 @@
+current directory: /usr/src/app/vendor/bundle/ruby/3.2.0/gems/debug-1.11.0/ext/debug
+/usr/local/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /usr/src/app/vendor/bundle/ruby/3.2.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250707-8-fkailm sitelibdir\=./.gem.20250707-8-fkailm clean
+
+current directory: /usr/src/app/vendor/bundle/ruby/3.2.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250707-8-fkailm sitelibdir\=./.gem.20250707-8-fkailm
+compiling debug.c
+compiling iseq_collector.c
+linking shared-object debug/debug.so
+
+current directory: /usr/src/app/vendor/bundle/ruby/3.2.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250707-8-fkailm sitelibdir\=./.gem.20250707-8-fkailm install
+/usr/bin/install -c -m 0755 debug.so ./.gem.20250707-8-fkailm/debug
+
+current directory: /usr/src/app/vendor/bundle/ruby/3.2.0/gems/debug-1.11.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250707-8-fkailm sitelibdir\=./.gem.20250707-8-fkailm clean
