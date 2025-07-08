@@ -21,7 +21,10 @@ class Api::TodoDetailsController < ApplicationController
 
   # PATCH /todo/:id
   def update
-    if @todo.update(completed: true)
+    status = params[:completed]
+    puts params.inspect
+
+    if @todo.update(todo_params)
       render json: {
         message: "Marked as completed",
         completed_at: @todo.updated_at
@@ -47,5 +50,9 @@ class Api::TodoDetailsController < ApplicationController
     @todo = Todo.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Todo not found" }, status: :not_found
+  end
+
+  def todo_params
+    params.require(:todo_detail).permit(:description)
   end
 end
