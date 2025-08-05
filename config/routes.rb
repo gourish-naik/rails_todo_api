@@ -2,6 +2,7 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api do
+    resources :users
     resources :todos, only: [:index, :show, :update, :destroy, :create] do
       member do
         post :update_completed #/api/todos/:id/update_completed
