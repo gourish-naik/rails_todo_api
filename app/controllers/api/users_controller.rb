@@ -5,15 +5,29 @@ class Api::UsersController < ApplicationController
   
   def create
     @user = AppUser.new(user_params)
-    p @user
+    
     if @user.save
+
+      tokens = @user.create_login_session
+
       render json: { 
-        message: "User created successfully", 
-        redirect_url: '/login', # replace with your actual path
-        user: @user 
+        data: {
+          token: tokens[:access_token],
+          refresh_token: tokens[:refresh_token],
+          msg: "User created successfully",
+          redirect_url: '/login', # replace with your actual path
+          user: @user
+        }
       }, status: :created
     else
-      render json: { errors: @user.errors }, status: :unprocessable_entity
+      render json: { 
+        data: {
+          error:{
+            msg: "User has already been taken!",
+            error: @user.errors
+          }
+        }
+      }, status: :unprocessable_entity
     end
   end
   

@@ -1,4 +1,5 @@
 class Api::TodosController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_todo, only: %i[ show update destroy ]
 
   # GET /todos
@@ -20,78 +21,122 @@ class Api::TodosController < ApplicationController
 
 #################################################################
 
-
   def index
+    # Get todos only for the authenticated user
+    user_todos = current_user.todos
+
     # handle filters
     case params[:completed]
     when 'true'
-      todos = Todo.where(completed: true)
+      todos = user_todos.where(completed: true)
     when 'false'
-      todos = Todo.where(completed: false)
+      todos = user_todos.where(completed: false)
     else
-      todos = Todo.all
+      todos = user_todos
     end
 
     order_direction = params[:order].to_s.downcase == 'desc' ? :desc : :asc
-
-    items_per_page =  params[:count].to_i > 6 && params[:count].to_i < 25 ? params[:count].to_i : 12
+    items_per_page = params[:count].to_i > 6 && params[:count].to_i < 25 ? params[:count].to_i : 12
 
     @todos = todos.order(updated_at: order_direction).page(params[:page]).per(items_per_page)
-    render json:{
-      todos: @todos.as_json(only: [:id,:todo_name,:completed,:description,:updated_at]),
-      current_page: @todos.current_page,
-      current_count: @todos.count,
-      total_pages: @todos.total_pages,
-      total_count: @todos.total_count,
-      per_page_limit: items_per_page,
-      sorting_order: order_direction
+    
+    render json: {
+      data: {
+        todos: @todos.as_json(only: [:id, :todo_name, :completed, :description, :updated_at]),
+        current_page: @todos.current_page,
+        current_count: @todos.count,
+        total_pages: @todos.total_pages,
+        total_count: @todos.total_count,
+        per_page_limit: items_per_page,
+        sorting_order: order_direction
+      }
     }
   end
 
   # GET /todos/1
   def show
-    render json: @todo
+    render json: {
+      data: {
+        todo: @todo.as_json(only: [:id, :todo_name, :completed, :description, :created_at, :updated_at])
+      }
+    }
   end
 
   # POST /todos
   def create
-    @todo = Todo.new(todo_params)
+    @todo = current_user.todos.new(todo_params)
 
     if @todo.save
-      render json: @todo, status: :created
+      render json: {
+        data: {
+          todo: @todo.as_json(only: [:id, :todo_name, :completed, :description, :created_at, :updated_at]),
+          msg: "Todo created successfully"
+        }
+      }, status: :created
     else
-      render json: @todo.errors, status: :unprocessable_entity
+      render json: {
+        error: {
+          msg: "Todo creation failed",
+          errors: @todo.errors
+        }
+      }, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /todos/:id
   def update
     if @todo.update(todo_params)
-      render json: @todo.as_json(only: [:id,:todo_name,:description,:completed,:updated_at])
+      render json: {
+        data: {
+          todo: @todo.as_json(only: [:id, :todo_name, :description, :completed, :updated_at]),
+          msg: "Todo updated successfully"
+        }
+      }
     else
-      render json: @todo.errors, status: :unprocessable_entity
+      render json: {
+        error: {
+          msg: "Todo update failed",
+          errors: @todo.errors
+        }
+      }, status: :unprocessable_entity
     end
   end
-
 
   # DELETE /todos/1
   def destroy
     if @todo.completed?
       @todo.destroy!
-      render json: Todo.all
+      render json: {
+        data: {
+          msg: "Todo deleted successfully",
+          remaining_todos: current_user.todos.count
+        }
+      }
     else
-      render json: {error: "Todo not completed yet!"}, status: :unprocessable_entity
+      render json: {
+        error: {
+          msg: "Todo not completed yet!"
+        }
+      }, status: :unprocessable_entity
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_todo
-      @todo = Todo.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def todo_params
-      params.require(:todo).permit(:todo_name, :completed, :description)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_todo
+    # Only find todos that belong to the current user
+    @todo = current_user.todos.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: {
+      error: {
+        msg: "Todo not found"
+      }
+    }, status: :not_found
+  end
+
+  # Only allow a list of trusted parameters through.
+  def todo_params
+    params.require(:todo).permit(:todo_name, :completed, :description)
+  end
 end
