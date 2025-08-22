@@ -38,6 +38,9 @@ gem "rack-cors"
 # Useing gem kaminari for pagination.
 gem "kaminari"
 
+# Using gem 'stripe' for payment gateway.
+gem 'stripe'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]

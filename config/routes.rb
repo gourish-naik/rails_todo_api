@@ -2,6 +2,10 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api do
+    post 'subscriptions', to: 'subscriptions#create'
+    post 'subscriptions/cancel', to: 'subscriptions#cancel'
+    get 'subscriptions/status', to: 'subscriptions#status'
+    post 'webhooks', to: 'webhooks#create'
     resources :users
       post 'login', to: 'authentication#login'
       post 'refresh', to: 'authentication#refresh'

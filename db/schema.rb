@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_06_054908) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_22_055333) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -45,6 +45,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_06_054908) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "app_user_id", null: false
+    t.string "stripe_subscription_id"
+    t.string "status"
+    t.string "plan"
+    t.string "│"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "stripe_customer_id"
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.index ["app_user_id"], name: "index_subscriptions_on_app_user_id"
+  end
+
   create_table "todos", force: :cascade do |t|
     t.string "todo_name"
     t.boolean "completed"
@@ -73,5 +87,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_06_054908) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "subscriptions", "app_users"
   add_foreign_key "user_logins", "app_users", column: "user_id"
 end
